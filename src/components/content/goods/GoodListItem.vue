@@ -1,6 +1,8 @@
 <template>
-    <div class="goods-item">
-        <div v-if="goodItems.show"><img :src="goodItems.show.img"></div>
+    <div class="goods-item" @click="itemClick">
+        <div v-if="goodItems.show">
+            <img :src="goodItems.show.img" @load="imageLoad">
+        </div>
 <!--        {{goodItems.show}}-->
         <div class="goods-info">
             <p>{{goodItems.title}}</p>
@@ -19,6 +21,15 @@
                 default(){
                     return {}
                 }
+            }
+        },
+        methods:{
+            imageLoad(){
+                // console.log('图片加载')
+                this.$bus.$emit('itemImageLoad')
+            },
+            itemClick(){
+                this.$router.push('/detail/' + this.goodItems.iid)
             }
         }
     }

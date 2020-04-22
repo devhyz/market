@@ -3,17 +3,26 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
+    <tab-control :titles="['流行','新款','精选']"
+                 class="tab-control2"
+                 @tabBbarItemClick ='tabBbarItemClick'
+                 ref="tabControl2" v-show="false"></tab-control>
     <scroll class="content"
             ref="scroll"
             :probe-type="3"
             @scroll="contentScroll"
             :pull-up-load="true"
             @pullingUp="pullingUp">
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper :banners="banners"
+                   @imageLoad="imageLoad">
+
+      </home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
       <tab-control :titles="['流行','新款','精选']"
-                   class="tab-control" @tabBbarItemClick ='tabBbarItemClick'></tab-control>
+                   class="tab-control"
+                   @tabBbarItemClick ='tabBbarItemClick'
+                   ref="tabControl1"></tab-control>
       <good-list :goods="showGoods"></good-list>
     </scroll>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
@@ -22,6 +31,8 @@
 
 <script>
   import {getHomeMultidata,getHomeGoods} from "network/home";
+
+  import {debounce} from "common/utils";
 
   import NavBar from "components/common/navbar/NavBar";
   import TabControl from "components/content/tabcontrol/TabControl";
@@ -44,7 +55,10 @@
           'sell': {page: 0, list: []},
         },
         currentType:'pop',
-        isShowBackTop :false
+        isShowBackTop :false,
+        tabOffsetTop: 0,
+        isTabFixed: false,
+        saveY: 0
       }
     },
     components:{
@@ -65,11 +79,15 @@
       },
       //显示或隐藏返回顶部按钮
       contentScroll(position){
+        //显示或隐藏返回顶部按钮
         if (-position.y > 1000){
           this.isShowBackTop = true
         }else {
           this.isShowBackTop = false
         }
+        //tabcontrol吸顶
+        this.isTabFixed = (-position.y) > this.isShowBackTop
+
       },
       pullingUp(){
         // console.log('上拉加载更多')
@@ -90,6 +108,12 @@
             break
         }
       },
+      //获得tabcontrol的offset值
+      imageLoad(){
+
+        this.tabOffsetTop = this.$refs.tabControl1.$el.offsetTop
+        // console.log(this.tabOffsetTop)
+      },
       //网络请求
       //swiper和recommend的数据
       getHomeMultidataHome(){
@@ -106,7 +130,16 @@
           this.goods[type].list.push(...res.data.list)
         })
         this.goods[type].page+=1
+        // console.log(this.$refs.scroll)
+        this.$refs.scroll && this.$refs.scroll.finishPullUp()
       }
+    },
+    activated() {
+      this.$refs.scroll.scrollTo(0, this.saveY, 0)
+      this.$refs.scroll.refresh()
+    },
+    deactivated() {
+      this.saveY = this.$refs.scroll.getScrollY()
     },
     computed:{
       showGoods(){
@@ -120,6 +153,17 @@
       this.getHomeGoodsHome('pop')
       this.getHomeGoodsHome('new')
       this.getHomeGoodsHome('sell')
+    },
+    mounted() {
+      const refresh =  debounce(this.$refs.scroll.refresh,500)
+      this.$bus.$on('itemImageLoad',() =>{
+        //这里执行很频繁要进行防抖操作
+        // this.$refs.scroll && this.$refs.scroll.refresh()
+        refresh()
+      })
+
+
+
     }
   }
 </script>
@@ -133,16 +177,21 @@
   .home-nav{
     background-color: var(--color-tint);
     color: #fff;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: 10;
+    /*position: fixed;*/
+    /*top: 0;*/
+    /*right: 0;*/
+    /*left: 0;*/
+    /*z-index: 10;*/
   }
   .tab-control{
     /*position: sticky;*/
-    top: 44px;
+    /*top: 44px;*/
+    /*z-index: 9;*/
+  }
+  tab-control2{
+    position: relative;
     z-index: 9;
+    background-color: #eeeeee;
   }
   .content {
     overflow: hidden;
