@@ -8,6 +8,7 @@
             <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
             <detail-param-info :param-info="paramInfo"></detail-param-info>
         </scroll>
+        <detail-bottom-bar></detail-bottom-bar>
     </div>
 </template>
 
@@ -21,6 +22,7 @@
     import DetailShopInfo from "./childcomps/DetailShopInfo";
     import DetailGoodsInfo from "./childcomps/DetailGoodsInfo";
     import DetailParamInfo from "./childcomps/DetailParamInfo";
+    import DetailBottomBar from "./childcomps/DetailBottomBar";
 
     export default {
         name: "Detail",
@@ -41,7 +43,8 @@
             DetailShopInfo,
             Scroll,
             DetailGoodsInfo,
-            DetailParamInfo
+            DetailParamInfo,
+            DetailBottomBar
         },
         methods:{
             imageLoad(){
@@ -76,6 +79,7 @@
         z-index: 9;
         background-color: #fff;
         height: 100vh;
+        overflow: hidden;
     }
     .detail-nav {
         position: relative;
@@ -83,7 +87,7 @@
         background-color: #fff;
     }
     .content{
-        height: calc(100% - 44px);
+        height: calc(100% - 102px);
         /*padding-top: 44px;*/
         /*height: 300px;*/
         /*overflow: hidden;*/

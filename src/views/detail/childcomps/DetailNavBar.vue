@@ -42,6 +42,11 @@
 </script>
 
 <style scoped>
+  .detail-nav-bar{
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
   .title {
     display: flex;
     font-size: 13px;
